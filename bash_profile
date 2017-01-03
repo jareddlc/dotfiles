@@ -13,6 +13,7 @@ alias ll="ls -la"
 alias ls="ls -Gfh"
 alias bashprofile="atom ~/.bash_profile"
 alias hosts="atom /etc/hosts"
+alias mux="mux; tmux source ~/.tmux.conf"
 
 #Prompt and prompt colors
 # 30m - Black
