@@ -526,3 +526,41 @@ __git_ps1 ()
 
 	return $exit
 }
+
+__git_ps1_branch_list () {
+	local output="$(git branch --list 2>/dev/null | wc -l | sed 's/^ *//')"
+
+	if [ -z "$output" ]; then
+		return $exit
+	fi
+
+	if [ "$output" = "0" ]; then
+		return $exit
+	fi
+
+	echo "$output"
+}
+
+__git_ps1_stash_list () {
+	local output="$(git stash list 2>/dev/null | wc -l | sed 's/^ *//')"
+
+	if [ -z "$output" ]; then
+		return $exit
+	fi
+
+	echo "$output"
+}
+
+__git_ps1_json () {
+	local current_branch=$(__git_ps1 "(%s)" | tr -d "(" | tr -d ")")
+	local branch_list=$(__git_ps1_branch_list)
+	local stash_list=$(__git_ps1_stash_list)
+
+	if [ -z "$current_branch" ]; then
+		echo -n -e "\033]0;\007"
+		return
+	fi
+
+	local text="{current: $current_branch, branches: $branch_list, stash: $stash_list}"
+	echo -n -e "\033]0;$text\007"
+}
