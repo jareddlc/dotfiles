@@ -90,7 +90,10 @@ _git_stash_list='\[\e[0;34m\]$(__git_ps1_stash_list)'
 _git_title='$(__git_ps1_json)'
 _bang="\[\e[0m\]\$ "
 
-export PS1="$_username$_at$_hostname$_colon$_directory $_git_branch$_bang$_git_title"
+export PS1="$_username$_at$_hostname$_colon$_directory $_git_branch$_bang"
+
+# Runs after command is entered
+PROMPT_COMMAND=__git_ps1_json
 
 # Monokai
 # export PS1='\[\e[00;37m\]\u\[\e[0m\]\[\e[00;31m\]@\[\e[0m\]\[\e[00;34m\]\h\[\e[0m\]\[\e[00;31m\]:\[\e[0m\]\[\e[00;32m\]\w\[\e[0m\]\[\e[00;33m\]$(__git_ps1 " (%s)")\[\e[0m\]\$ '
