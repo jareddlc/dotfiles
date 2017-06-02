@@ -23,9 +23,14 @@ alias dev="cd ~/Development"
 alias temp="cd $(echo $TMPDIR)"
 
 # Alias git
-alias gs="git status"
+alias gb="git branch"
 alias gd="git diff"
-alias gm="git checkout master"
+alias gl="git log"
+alias gs="git status"
+alias gcm="git checkout master"
+alias gcb="git checkout -b"
+alias gfu="git fetch upstream"
+alias gpum="git pull upstream master"
 
 # Alias profile
 alias bash_profile="$TEXT_EDITOR ~/.bash_profile"
@@ -46,30 +51,37 @@ set_text_editor () {
 #Prompt and prompt colors
 
 # Foreground
-# 30m - Black
-# 31m - Red
-# 32m - Green
-# 33m - Yellow
-# 34m - Blue
-# 35m - Purple
-# 36m - Cyan
-# 37m - White
-# 39m - Default
+F_BLACK='\[\e[0;30m\]'
+F_RED='\[\e[0;31m\]'
+F_GREEN='\[\e[0;32m\]'
+F_YELLOW='\[\e[0;33m\]'
+F_BLUE='\[\e[0;34m\]'
+F_PURPLE='\[\e[0;35m\]'
+F_CYAN='\[\e[0;36m\]'
+F_WHITE='\[\e[0;37m\]'
+F_DEFAULT='\[\e[0;39m\]'
 
 # Background
-# 40m - Black
-# 41m - Red
-# 42m - Green
-# 43m - Yellow
-# 44m - Blue
-# 45m - Purple
-# 46m - Cyan
-# 47m - White
-# 49m - Default
+B_BLACK='\[\e[0;40m\]'
+B_RED='\[\e[0;41m\]'
+B_GREEN='\[\e[0;42m\]'
+B_YELLOW='\[\e[0;43m\]'
+B_BLUE='\[\e[0;44m\]'
+B_YELLOW='\[\e[0;45m\]'
+B_CYAN='\[\e[0;46m\]'
+B_WHITE='\[\e[0;47m\]'
+B_DEFAULT='\[\e[0;49m\]'
 
-# Font
-# 0 - Normal
+# Reset
+F_RESET="\[\e[0m\]"
+
+# Text attributes
+# 0 - All attributes off
 # 1 - Bold
+# 4 - Underscore (on monochrome display adapter only)
+# 5 - Blink on
+# 7 - Reverse video on
+# 8 - Concealed on
 
 # \u - user
 # \h - hostname short
@@ -78,22 +90,20 @@ set_text_editor () {
 # Example: "\[\e[0;32;40m\]\h" Normal;Green foreground; Black background
 
 # FlatUI
-_reset="\[\e[0m\]"
-_username="\[\e[0;31m\]\u"
-_at="\[\e[0;35m\]@"
-_hostname="\[\e[0;32m\]\h"
-_colon="\[\e[0;35m\]:"
-_directory="\[\e[0;33m\]\w"
+_username="$F_RED\u"
+_at="$F_YELLOW@"
+_hostname="$F_GREEN\h"
+_colon="$F_PURPLE:"
+_directory="$F_YELLOW\w"
 _git_branch='\[\e[0;34m\]$(__git_ps1 "(%s)")'
 _git_branch_list='\[\e[0;34m\]$(__git_ps1_branch_list)'
 _git_stash_list='\[\e[0;34m\]$(__git_ps1_stash_list)'
-_git_title='$(__git_ps1_json)'
-_bang="\[\e[0m\]\$ "
+_bang="$F_RESET\$ "
 
 export PS1="$_username$_at$_hostname$_colon$_directory $_git_branch$_bang"
 
 # Runs after command is entered
-PROMPT_COMMAND=__git_ps1_json
+PROMPT_COMMAND="__git_ps1_json; $PROMPT_COMMAND"
 
 # Monokai
 # export PS1='\[\e[00;37m\]\u\[\e[0m\]\[\e[00;31m\]@\[\e[0m\]\[\e[00;34m\]\h\[\e[0m\]\[\e[00;31m\]:\[\e[0m\]\[\e[00;32m\]\w\[\e[0m\]\[\e[00;33m\]$(__git_ps1 " (%s)")\[\e[0m\]\$ '
