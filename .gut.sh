@@ -1,36 +1,227 @@
+_GUT_SELECTION_HIGHLIGHT='\033[0;31m'
+_GUT_SELECTION_RESET='\033[0m'
 
+# Add gut tab completion
+_gut_completion() {
+  local cur prev commands
 
-draw_list() {
-  RED='\033[0;31m'
-  CL='\033[0m'
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  commands="fetch pull push reset"
 
+  COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+
+  return 0
+}
+complete -F _gut_completion gut
+
+_gut_help() {
+  echo "usage: gut [command]"
+  echo ""
+  echo "commands:"
+  echo ""
+  echo "fetch         prompts for git remote, git branch, and performs git fetch"
+  echo "pull          prompts for git remote, git branch, and performs git pull"
+  echo "push          prompts for git remote, git branch, and performs git push"
+  echo "reset         prompts for git hash, and performs git reset --soft"
+  echo ""
+}
+
+# Gut main function
+gut() {
+  if [ "$1" = "-h" ]; then
+    _gut_help
+  elif [ "$1" = "fetch" ]; then
+    _gut_fetch
+  elif [ "$1" = "pull" ]; then
+    _gut_pull
+  elif [ "$1" = "push" ]; then
+    _gut_push
+  elif [ "$1" = "reset" ]; then
+    _gut_reset
+  else
+    echo "Invalid command"
+    _gut_help
+  fi
+}
+
+# Gut functions
+_gut_fetch() {
+  # Save IFS
+  local SAVEIFS=$IFS
+  # Change IFS to new line.
+  IFS=$'\n'
+
+  # Get git remotes (push)
+  local _git_remotes_names=$(git remote -v | grep push | awk '{ print $1; }')
+  local _git_remotes_urls=$(git remote -v | grep push | awk '{ print $2; }')
+  local _git_remotes=$(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }')
+
+  # Convert to array
+  _git_remotes_names=($_git_remotes_names)
+  _git_remotes_urls=($_git_remotes_urls)
+  _git_remotes=($_git_remotes)
+
+  # Get remote
+  echo "Select a remote:"
+  __gut_select _git_remotes[@]
+  local indexRemote=$?
+
+  # Git fetch
+  local _git_branch_names=$(git fetch ${_git_remotes_names[$indexRemote]} -v 2>&1 | grep "=" | awk '{ print $5; }') # awk '{ print $7; }' for name/branch
+
+  # Convert to array
+  _git_branch_names=($_git_branch_names)
+
+  # Get branch
+  echo "Select a branch:"
+  __gut_select _git_branch_names[@]
+  local indexBranch=$?
+
+  # Run git command
+  git fetch "${_git_remotes_names[$indexRemote]}" "${_git_branch_names[$indexBranch]}"
+
+  # Restore IFS
+  IFS=$SAVEIFS
+}
+
+_gut_pull() {
+  # Save IFS
+  local SAVEIFS=$IFS
+  # Change IFS to new line.
+  IFS=$'\n'
+
+  # Get git remotes (push)
+  local _git_remotes_names=$(git remote -v | grep push | awk '{ print $1; }')
+  local _git_remotes_urls=$(git remote -v | grep push | awk '{ print $2; }')
+  local _git_remotes=$(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }')
+
+  # Convert to array
+  _git_remotes_names=($_git_remotes_names)
+  _git_remotes_urls=($_git_remotes_urls)
+  _git_remotes=($_git_remotes)
+
+  # Get remote
+  echo "Select a remote:"
+  __gut_select _git_remotes[@]
+  local indexRemote=$?
+
+  # Get git branch
+  local _git_branch_names=$(git branch | awk '{ $1=$1; print }' | tr -d "* ")
+
+  # Convert to array
+  _git_branch_names=($_git_branch_names)
+
+  # Get branch
+  echo "Select a branch:"
+  __gut_select _git_branch_names[@]
+  local indexBranch=$?
+
+  # Run git command
+  git pull "${_git_remotes_names[$indexRemote]}" "${_git_branch_names[$indexBranch]}"
+
+  # Restore IFS
+  IFS=$SAVEIFS
+}
+
+_gut_push() {
+  # Save IFS
+  local SAVEIFS=$IFS
+  # Change IFS to new line.
+  IFS=$'\n'
+
+  # Get git remotes (push)
+  local _git_remotes_names=$(git remote -v | grep push | awk '{ print $1; }')
+  local _git_remotes_urls=$(git remote -v | grep push | awk '{ print $2; }')
+  local _git_remotes=$(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }')
+
+  # Convert to array
+  _git_remotes_names=($_git_remotes_names)
+  _git_remotes_urls=($_git_remotes_urls)
+  _git_remotes=($_git_remotes)
+
+  # Get remote
+  echo "Select a remote:"
+  __gut_select _git_remotes[@]
+  local indexRemote=$?
+
+  # Get git branch
+  local _git_branch_names=$(git branch | awk '{ $1=$1; print }' | tr -d "* ")
+
+  # Convert to array
+  _git_branch_names=($_git_branch_names)
+
+  # Get branch
+  echo "Select a branch:"
+  __gut_select _git_branch_names[@]
+  local indexBranch=$?
+
+  # Run git command
+  git push "${_git_remotes_names[$indexRemote]}" "${_git_branch_names[$indexBranch]}"
+
+  # Restore IFS
+  IFS=$SAVEIFS
+}
+
+_gut_reset() {
+  # Save IFS
+  local SAVEIFS=$IFS
+  # Change IFS to new line.
+  IFS=$'\n'
+
+  # Git format placeholders
+  # %h: abbreviated commit hash
+  # %s: subject
+  # %cd: committer date
+  # %an: author name
+
+  # Get git commits
+  local _git_commits_names=$(git log -n 25 --pretty=format:'%h - %s (%cd) <%an>')
+  local _git_commits_hashes=$(git log -n 25 --pretty=format:'%h')
+
+  # Convert to array
+  _git_commits_names=($_git_commits_names)
+  _git_commits_hashes=($_git_commits_hashes)
+
+  # Get commit
+  echo "Select a commit:"
+  __gut_select _git_commits_names[@]
+  local indexCommit=$?
+
+  # Run git command
+  git reset --soft ${_git_commits_hashes[$indexCommit]}
+}
+
+# Gut selection functions
+__gut_echo() {
   # Get arguments
   declare -a array=("${!1}")
 
-  # Draw
+  # Iterate over array
   for k in "${!array[@]}"; do
     if [ "$2" -eq "$k" ]; then
       # Clear line
       #echo -en "\033[K"
       # Print
-      echo -en "$RED${array[$k]} \n \r"
+      echo -en "$_GUT_SELECTION_HIGHLIGHT${array[$k]} \n \r"
     else
       # Clear line
       #echo -en "\033[K"
       # Print
-      echo -en "$CL${array[$k]} \n \r"
+      echo -en "$_GUT_SELECTION_RESET${array[$k]} \n \r"
     fi
   done
 
   # Clear formatting
-  echo -en "$CL"
+  echo -en "$_GUT_SELECTION_RESET"
 }
 
-clear_list() {
+__gut_clear() {
   # Get arguments
   declare -a array=("${!1}")
 
-  # Draw
+  # Iterate over array
   for k in "${!array[@]}"; do
     # Clear line
     #echo -en "\033[K"
@@ -39,19 +230,7 @@ clear_list() {
   done
 }
 
-get_cursor() {
-  # Send ANSI command
-  echo -en '\033[6n'
-
-  # Read
-  read -sdR CURPOS
-
-  # Extract value
-  CURPOS=${CURPOS#*[}
-  _GUT_CURSOR=$(echo $CURPOS | awk -F';' '{print $1}')
-}
-
-get_input() {
+__gut_select() {
   # Get arguments
   declare -a array=("${!1}")
   # echo ${array[@]} # List array contents
@@ -61,9 +240,6 @@ get_input() {
   let i=0;
   let min=0;
   let max="${#array[@]} - 1"
-
-  # Get cursor position
-  get_cursor
 
   # Turn cursor off
   echo -en "\033[?25l"
@@ -82,33 +258,26 @@ get_input() {
       fi
     fi
 
-    # Draw list
-    draw_list array[@] $i
+    # Echo list
+    __gut_echo array[@] $i
 
     # Read input
     read -r -sn1 input
 
     # Read selection (This is after the read to prevent early termination)
     if [ "$input" = "" ]; then
-      _GUT_SELECTION=$i
+      _GUT_SELECTION_INDEX=$i
       _GUT_SELECTION_TEXT="${array[$i]}"
 
       break
     fi
 
     # Reset cursor
-    clear_list array[@]
-    #echo -en "\033[$_GUT_CURSOR;1f"
+    __gut_clear array[@]
   done
 
   # Turn cursor on
   echo -en "\033[?25h"
-}
 
-ls_dir() {
-  dirs=( $( ls ) )
-
-  get_input dirs[@]
-
-  echo "Selected: $_GUT_SELECTION_TEXT"
+  return $i
 }

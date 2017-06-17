@@ -25,7 +25,7 @@ alias temp="cd $(echo $TMPDIR)"
 # Alias git
 alias gb="git branch"
 alias gd="git diff"
-alias gl="git log"
+alias gl="git log  --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gs="git status"
 alias gcm="git checkout master"
 alias gcb="git checkout -b"
@@ -102,8 +102,12 @@ _bang="$F_RESET\$ "
 
 export PS1="$_username$_at$_hostname$_colon$_directory $_git_branch$_bang"
 
+# Save current PROMPT_COMMAND
+if [[ ${PROMPT_COMMAND} != *"__git_ps1_json"* ]]; then
+  _PROMPT_COMMAND=$PROMPT_COMMAND
+fi
 # Runs after command is entered
-PROMPT_COMMAND="__git_ps1_json; $PROMPT_COMMAND"
+PROMPT_COMMAND="__git_ps1_json; $_PROMPT_COMMAND"
 
 # Monokai
 # export PS1='\[\e[00;37m\]\u\[\e[0m\]\[\e[00;31m\]@\[\e[0m\]\[\e[00;34m\]\h\[\e[0m\]\[\e[00;31m\]:\[\e[0m\]\[\e[00;32m\]\w\[\e[0m\]\[\e[00;33m\]$(__git_ps1 " (%s)")\[\e[0m\]\$ '
