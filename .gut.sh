@@ -160,6 +160,21 @@ _gut_push() {
   # Run git command
   git push "${_git_remotes_names[$indexRemote]}" "${_git_branch_names[$indexBranch]}"
 
+  local exitPush=$?
+
+  if [ "$exitPush" != "0" ]; then
+    echo "Push failed, force push?"
+
+    local _force=(No Yes)
+
+    __gut_select _force[@]
+    local indexForce=$?
+
+    if [ "$indexForce" = "1" ]; then
+      git push "${_git_remotes_names[$indexRemote]}" "${_git_branch_names[$indexBranch]}" --force
+    fi
+  fi
+
   # Restore IFS
   IFS=$SAVEIFS
 }
@@ -280,4 +295,63 @@ __gut_select() {
   echo -en "\033[?25h"
 
   return $i
+}
+
+# Gut PS1
+
+__gut_ps1_branch_list() {
+	local output="$(git branch --list 2>/dev/null | wc -l | sed 's/^ *//')"
+
+	if [ -z "$output" ]; then
+		return $exit
+	fi
+
+	if [ "$output" = "0" ]; then
+		return $exit
+	fi
+
+	echo "$output"
+}
+
+__gut_ps1_stash_list() {
+	local output="$(git stash list 2>/dev/null | wc -l | sed 's/^ *//')"
+
+	if [ -z "$output" ]; then
+		return $exit
+	fi
+
+	echo "$output"
+}
+
+__gut_ps1_changes() {
+  local changes=$(git status -s 2>/dev/null)
+  local staged="M "
+  local unstaged=" M"
+  local untracked="??"
+
+  if [[ $changes == *$staged* ]]; then
+    echo -n "^"
+  fi
+
+  if [[ $changes == *$unstaged* ]]; then
+    echo -n "*"
+  fi
+
+  if [[ $changes == *$untracked* ]]; then
+    echo -n "+"
+  fi
+}
+
+__gut_ps1_json() {
+	local current_branch=$(__git_ps1 "(%s)" | tr -d "(" | tr -d ")")
+	local branch_list=$(__git_ps1_branch_list)
+	local stash_list=$(__git_ps1_stash_list)
+
+	if [ -z "$current_branch" ]; then
+		echo -n -e "\033]0;\007"
+		return
+	fi
+
+	local text="{current: $current_branch, branches: $branch_list, stash: $stash_list}"
+	echo -n -e "\033]0;$text\007"
 }

@@ -95,12 +95,13 @@ _at="$F_YELLOW@"
 _hostname="$F_GREEN\h"
 _colon="$F_PURPLE:"
 _directory="$F_YELLOW\w"
-_git_branch='\[\e[0;34m\]$(__git_ps1 "(%s)")'
-_git_branch_list='\[\e[0;34m\]$(__git_ps1_branch_list)'
-_git_stash_list='\[\e[0;34m\]$(__git_ps1_stash_list)'
+_git_branch="$F_BLUE"'$(__git_ps1 "(%s)")'
+_git_branch_list="$F_BLUE"'$(__gut_ps1_branch_list)'
+_git_stash_list="$F_BLUE"'$(__gut_ps1_stash_list)'
+_git_changes="$F_PURPLE"'$(__gut_ps1_changes)'
 _bang="$F_RESET\$ "
 
-export PS1="$_username$_at$_hostname$_colon$_directory $_git_branch$_bang"
+export PS1="$_username$_at$_hostname$_colon$_directory $_git_branch$_git_changes$_bang"
 
 # Save current PROMPT_COMMAND
 if [[ ${PROMPT_COMMAND} != *"__git_ps1_json"* ]]; then
