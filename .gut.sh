@@ -54,14 +54,9 @@ _gut_fetch() {
   IFS=$'\n'
 
   # Get git remotes (push)
-  local _git_remotes_names=$(git remote -v | grep push | awk '{ print $1; }')
-  local _git_remotes_urls=$(git remote -v | grep push | awk '{ print $2; }')
-  local _git_remotes=$(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }')
-
-  # Convert to array
-  _git_remotes_names=($_git_remotes_names)
-  _git_remotes_urls=($_git_remotes_urls)
-  _git_remotes=($_git_remotes)
+  local _git_remotes_names=($(__gut_remotes_names))
+  local _git_remotes_urls=($(__gut_remotes_urls))
+  local _git_remotes=($(__gut_remotes))
 
   # Get remote
   echo "Select a remote:"
@@ -69,10 +64,7 @@ _gut_fetch() {
   local indexRemote=$?
 
   # Git fetch
-  local _git_branch_names=$(git fetch ${_git_remotes_names[$indexRemote]} -v 2>&1 | grep "=" | awk '{ print $5; }') # awk '{ print $7; }' for name/branch
-
-  # Convert to array
-  _git_branch_names=($_git_branch_names)
+  local _git_branch_names=($(git fetch ${_git_remotes_names[$indexRemote]} -v 2>&1 | grep "=" | awk '{ print $5; }')) # awk '{ print $7; }' for name/branch
 
   # Get branch
   echo "Select a branch:"
@@ -93,14 +85,9 @@ _gut_pull() {
   IFS=$'\n'
 
   # Get git remotes (push)
-  local _git_remotes_names=$(git remote -v | grep push | awk '{ print $1; }')
-  local _git_remotes_urls=$(git remote -v | grep push | awk '{ print $2; }')
-  local _git_remotes=$(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }')
-
-  # Convert to array
-  _git_remotes_names=($_git_remotes_names)
-  _git_remotes_urls=($_git_remotes_urls)
-  _git_remotes=($_git_remotes)
+  local _git_remotes_names=($(__gut_remotes_names))
+  local _git_remotes_urls=($(__gut_remotes_urls))
+  local _git_remotes=($(__gut_remotes))
 
   # Get remote
   echo "Select a remote:"
@@ -108,10 +95,7 @@ _gut_pull() {
   local indexRemote=$?
 
   # Get git branch
-  local _git_branch_names=$(git branch | awk '{ $1=$1; print }' | tr -d "* ")
-
-  # Convert to array
-  _git_branch_names=($_git_branch_names)
+  local _git_branch_names=($(__gut_branch_names))
 
   # Get branch
   echo "Select a branch:"
@@ -132,14 +116,9 @@ _gut_push() {
   IFS=$'\n'
 
   # Get git remotes (push)
-  local _git_remotes_names=$(git remote -v | grep push | awk '{ print $1; }')
-  local _git_remotes_urls=$(git remote -v | grep push | awk '{ print $2; }')
-  local _git_remotes=$(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }')
-
-  # Convert to array
-  _git_remotes_names=($_git_remotes_names)
-  _git_remotes_urls=($_git_remotes_urls)
-  _git_remotes=($_git_remotes)
+  local _git_remotes_names=($(__gut_remotes_names))
+  local _git_remotes_urls=($(__gut_remotes_urls))
+  local _git_remotes=($(__gut_remotes))
 
   # Get remote
   echo "Select a remote:"
@@ -147,10 +126,7 @@ _gut_push() {
   local indexRemote=$?
 
   # Get git branch
-  local _git_branch_names=$(git branch | awk '{ $1=$1; print }' | tr -d "* ")
-
-  # Convert to array
-  _git_branch_names=($_git_branch_names)
+  local _git_branch_names=($(__gut_branch_names))
 
   # Get branch
   echo "Select a branch:"
@@ -192,12 +168,8 @@ _gut_reset() {
   # %an: author name
 
   # Get git commits
-  local _git_commits_names=$(git log -n 25 --pretty=format:'%h - %s (%cd) <%an>')
-  local _git_commits_hashes=$(git log -n 25 --pretty=format:'%h')
-
-  # Convert to array
-  _git_commits_names=($_git_commits_names)
-  _git_commits_hashes=($_git_commits_hashes)
+  local _git_commits_names=($(__gut_log_names))
+  local _git_commits_hashes=($(__gut_log_hashes))
 
   # Get commit
   echo "Select a commit:"
@@ -206,6 +178,50 @@ _gut_reset() {
 
   # Run git command
   git reset --soft ${_git_commits_hashes[$indexCommit]}
+}
+
+# Gut helper functions
+__gut_branch_names() {
+  local _git_branch_names=$(git branch | awk '{ $1=$1; print }' | tr -d "* ")
+  echo "$_git_branch_names"
+}
+
+__gut_branch_remote() {
+  if [ -z "$1" ]; then
+    echo "invalid parameter passed: __gut_branch_remote"
+    return -1
+  fi
+
+  local _git_braches_all=$(git branch -a | grep "$1" | tr -d "* " | awk -F / '{ print $3; }')
+  echo "$_git_braches_all"
+
+  # local _git_branchs=$(__gut_branch_remote ${_git_remotes_names[$indexRemote]})
+  # echo "$_git_branchs"
+}
+
+__gut_log_names() {
+  local _git_commits_names=$(git log -n 25 --pretty=format:'%h - %s (%cd) <%an>')
+  echo "$_git_commits_names"
+}
+
+__gut_log_hashes() {
+  local _git_commits_hashes=$(git log -n 25 --pretty=format:'%h')
+  echo "$_git_commits_hashes"
+}
+
+__gut_remotes_names() {
+  local _git_remotes_names=($(git remote -v | grep push | awk '{ print $1; }'))
+  echo "$_git_remotes_names"
+}
+
+__gut_remotes_urls() {
+  local _git_remotes_urls=($(git remote -v | grep push | awk '{ print $2; }'))
+  echo "$_git_remotes_urls"
+}
+
+__gut_remotes() {
+  local _git_remotes=($(git remote -v | grep push | awk '{ print $1,  "(" $2 ")" }'))
+  echo "$_git_remotes"
 }
 
 # Gut selection functions
@@ -297,8 +313,93 @@ __gut_select() {
   return $i
 }
 
-# Gut PS1
+# Gut KV
+__gut_save() {
+  local filePath=$1
+  local key=$2
+  local value=$3
 
+  # Check for provided file path
+  if [ "$filePath" = "" ]; then
+    echo "No save file path provided"
+    return 1;
+  fi
+
+  if [ "$key" = "" ]; then
+    echo "No key provided"
+    return 1;
+  fi
+
+  if [ "$value" = "" ]; then
+    echo "No value provided"
+    return 1;
+  fi
+
+  # Encode key and value
+  local encodedKey=$(echo "$key" | base64)
+  local encodedValue=$(echo "$value" | base64)
+  local store="$encodedKey:$encodedValue"
+
+  # Check if file exists
+  local action=">"
+  if [ ! -e "$filePath" ]; then
+    # File does not exist, store
+    echo ${store} >> ${filePath}
+    return 0
+  fi
+
+  # Check if key exists
+  local found=$(grep "$encodedKey:" "$filePath")
+  local foundLine=$(awk "/"$encodedKey:"/{ print NR; exit }" "$filePath")
+  if [ "$found" ]; then
+    # Update current key
+    local awkC="{ if (NR == "$foundLine") print \""$store"\"; else print \$0}"
+    awk "$awkC" "$filePath" > "$filePath".swap
+    cat "$filePath".swap > "$filePath"
+    rm "$filePath".swap
+  else
+    # Key does not exist, append
+    echo ${store} >> ${filePath}
+  fi
+}
+
+__gut_get() {
+  local filePath=$1
+  local key=$2
+
+  # Check for provided file path
+  if [ "$filePath" = "" ]; then
+    echo "No save file path provided"
+    return 1;
+  fi
+
+  if [ "$key" = "" ]; then
+    echo "No key provided"
+    return 1;
+  fi
+
+  # Check if file exists
+  local action=">"
+  if [ ! -e "$filePath" ]; then
+    # File does not exist, store
+    echo "File does not exist"
+    return 1
+  fi
+  # Encode key
+  local encodedKey=$(echo "$key" | base64)
+
+  # Check if key exists
+  local found=$(grep "$encodedKey:" "$filePath")
+  local foundLine=$(awk "/"$encodedKey:"/{ print \$0; exit }" "$filePath")
+  if [ "$found" ]; then
+    # Get key and decode it
+    local encodedValue=$(echo "$foundLine" | awk -F':' "{ print \$2 }")
+    local value=$(echo "$encodedValue" | base64 -D)
+    echo $value
+  fi
+}
+
+# Gut PS1
 __gut_ps1_branch_list() {
 	local output="$(git branch --list 2>/dev/null | wc -l | sed 's/^ *//')"
 
@@ -324,10 +425,10 @@ __gut_ps1_stash_list() {
 }
 
 __gut_ps1_changes() {
-  local changes=$(git status -s 2>/dev/null)
-  local staged="M "
-  local unstaged=" M"
-  local untracked="??"
+  local changes=$(git status 2>/dev/null)
+  local staged="Changes to be committed"
+  local unstaged="Changes not staged for commit"
+  local untracked="Untracked files"
 
   if [[ $changes == *$staged* ]]; then
     echo -n "^"
