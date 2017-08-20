@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# apm list --installed --bare
+
 apm install activate-power-mode \
   highlight-line \
   highlight-selected \
