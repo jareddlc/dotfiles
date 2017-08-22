@@ -15,9 +15,6 @@ source ~/.git-prompt.sh
 alias ll="ls -la"
 alias ls="ls -Gfh"
 
-# Alias atom
-alias atomlist="apm list --installed --bare"
-
 # Alias directories
 alias dev="cd ~/Development"
 alias temp="cd $(echo $TMPDIR)"
@@ -75,20 +72,6 @@ B_DEFAULT='\[\e[0;49m\]'
 # Reset
 F_RESET="\[\e[0m\]"
 
-# Text attributes
-# 0 - All attributes off
-# 1 - Bold
-# 4 - Underscore (on monochrome display adapter only)
-# 5 - Blink on
-# 7 - Reverse video on
-# 8 - Concealed on
-
-# \u - user
-# \h - hostname short
-# \w - directory
-
-# Example: "\[\e[0;32;40m\]\h" Normal;Green foreground; Black background
-
 # FlatUI
 _username="$F_RED\u"
 _at="$F_YELLOW@"
@@ -109,9 +92,6 @@ if [[ ${PROMPT_COMMAND} != *"__git_ps1_json"* ]]; then
 fi
 # Runs after command is entered
 PROMPT_COMMAND="__git_ps1_json; $_PROMPT_COMMAND"
-
-# Monokai
-# export PS1='\[\e[00;37m\]\u\[\e[0m\]\[\e[00;31m\]@\[\e[0m\]\[\e[00;34m\]\h\[\e[0m\]\[\e[00;31m\]:\[\e[0m\]\[\e[00;32m\]\w\[\e[0m\]\[\e[00;33m\]$(__git_ps1 " (%s)")\[\e[0m\]\$ '
 
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
