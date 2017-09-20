@@ -8,8 +8,11 @@ export TEXT_EDITOR="atom"
 # source ssh-add ~/.ssh/id_rsa
 
 # Git
-source ~/.git-completion.bash
-source ~/.git-prompt.sh
+source $HOME/.git-completion.bash
+source $HOME/.git-prompt.sh
+
+# Gut
+source $HOME/gut.sh
 
 # Alias
 alias ll="ls -la"
@@ -41,9 +44,7 @@ set_text_editor () {
   export TEXT_EDITOR="$1"
 }
 
-#Prompt and prompt colors
-
-# FlatUI
+# Prompt and colors
 _username="$_GUT_PS1_F_RED\u"
 _at="$_GUT_PS1_F_YELLOW@"
 _hostname="$_GUT_PS1_F_GREEN\h"
