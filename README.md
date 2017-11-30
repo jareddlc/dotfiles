@@ -18,6 +18,7 @@ Collection of components that simplifies development workflow
 The terminal emulator included in the macOS operating system by Apple.
 
 FlatUI.terminal
+FlatUI.itermcolors
 
 ![cropped_flatui](https://user-images.githubusercontent.com/1082238/30625931-5cd3b964-9d7b-11e7-81d6-85ae7f8056ad.png)
 
